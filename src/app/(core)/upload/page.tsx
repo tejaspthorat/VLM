@@ -1,204 +1,195 @@
-'use client'
+"use client";
 
-import { useState, ChangeEvent } from 'react'
-import { useRouter } from 'next/navigation'
-import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { 
-  Button, 
-  TextField, 
-  IconButton, 
-  Typography, 
-  Box, 
-  Container, 
-  Paper,
-  AppBar,
-  Toolbar
-} from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
-import LoadingAnimation from '../../../components/LoadingAnimation'
-import DotPattern from '@/components/ui/dot-pattern'
-import { cn } from '@/lib/utils'
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Container,
+  CssBaseline,
+  IconButton,
+  InputAdornment,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#000000',
-    },
-    background: {
-      default: '#ffffff',
-    },
-  },
-})
+const theme = createTheme();
 
-interface ContextItem {
-  contextId: string;
-  urls: string[];
-}
+export default function LoginSignup() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showReenterPassword, setShowReenterPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-export default function DocumentUploadPage() {
-  const [isUploading, setIsUploading] = useState(false)
-  const [contextList, setContextList] = useState<ContextItem[]>([{ contextId: '', urls: [''] }])
-  const router = useRouter()
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const name = formData.get("name") as string;
+    const phone = formData.get("phone") as string;
 
-  const addNewContext = () => {
-    setContextList([...contextList, { contextId: '', urls: [''] }])
-  }
+    // Here you would typically handle the login or signup logic
+    console.log({
+      isLogin,
+      email,
+      password,
+      name: isLogin ? undefined : name,
+      phone: isLogin ? undefined : phone,
+    });
 
-  const addNewUrl = (index: number) => {
-    const newContextList = [...contextList]
-    newContextList[index].urls.push('')
-    setContextList(newContextList)
-  }
+    // Simulating API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setLoading(false);
+  };
 
-  const handleContextIdChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
-    const newContextList = [...contextList]
-    newContextList[index].contextId = e.target.value
-    setContextList(newContextList)
-  }
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
-  const handleUrlChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, contextIndex: number, urlIndex: number) => {
-    const newContextList = [...contextList]
-    newContextList[contextIndex].urls[urlIndex] = e.target.value
-    setContextList(newContextList)
-  }
-
-  const removeUrl = (contextIndex: number, urlIndex: number) => {
-    const newContextList = [...contextList]
-    newContextList[contextIndex].urls.splice(urlIndex, 1)
-    setContextList(newContextList)
-  }
-
-  const removeContext = (contextIndex: number) => {
-    const newContextList = [...contextList]
-    newContextList.splice(contextIndex, 1)
-    setContextList(newContextList)
-  }
-
-  const handleUpload = async () => {
-    setIsUploading(true)
-
-    try {
-      const formData = {
-        contextList
-      }
-
-      const response = await fetch('/api/uploadPdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (response.ok) {
-        console.log('Form data submitted successfully')
-        router.push("/chat")
-      } else {
-        console.error('Error submitting form data')
-      }
-
-      setIsUploading(false)
-    } catch (error) {
-      console.error('Error uploading:', error)
-      alert('Error uploading data')
-      setIsUploading(false)
-    }
-  }
+  const toggleReenterPasswordVisibility = () => {
+    setShowReenterPassword((prev) => !prev);
+  };
 
   return (
     <ThemeProvider theme={theme}>
-      <Box className="relative min-h-screen w-full flex flex-col bg-white">
-        <AppBar position="fixed" color="transparent" elevation={0} className="backdrop-blur-md bg-white bg-opacity-70">
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              VoicEraCX
-            </Typography>
-            <Button color="primary">About</Button>
-            <Button color="primary">Services</Button>
-            <Button color="primary">Contact</Button>
-          </Toolbar>
-        </AppBar>
-        <DotPattern className={cn("[mask-image:radial-gradient(50vw_circle_at_center,black,transparent)]")} />
-        <Container maxWidth="md" className="mt-24 mb-12 relative z-10">
-          <Typography variant="h4" component="h1" align="center" gutterBottom className="text-black mb-4">
-            Start the Process by Adding Context IDs
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            {isLogin ? "Log In" : "Sign Up"}
           </Typography>
-
-          <Paper elevation={3} className="bg-white p-8 shadow-lg rounded-xl">
-            <Box>
-              {contextList.map((context, contextIndex) => (
-                <Box key={contextIndex} className="mt-6">
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="h6" className="text-black mb-2">
-                      Context ID {contextIndex + 1}
-                    </Typography>
-                    <IconButton onClick={() => removeContext(contextIndex)} size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                  <TextField
-                    fullWidth
-                    placeholder="Context ID"
-                    value={context.contextId}
-                    onChange={(e) => handleContextIdChange(e, contextIndex)}
-                    variant="outlined"
-                    margin="normal"
-                  />
-                  {context.urls.map((url, urlIndex) => (
-                    <Box key={urlIndex} display="flex" alignItems="center" marginBottom={1}>
-                      <TextField
-                        fullWidth
-                        placeholder="URL"
-                        value={url}
-                        onChange={(e) => handleUrlChange(e, contextIndex, urlIndex)}
-                        variant="outlined"
-                        margin="dense"
-                      />
-                      <IconButton onClick={() => removeUrl(contextIndex, urlIndex)} size="small" className="ml-2">
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  ))}
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    onClick={() => addNewUrl(contextIndex)}
-                    className="mt-2"
-                  >
-                    Add URL
-                  </Button>
-                </Box>
-              ))}
-
-              <Button
-                fullWidth
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={addNewContext}
-                className="mt-4"
+          <Card sx={{ mt: 3, width: "100%" }}>
+            <CardHeader
+              title={
+                <Tabs
+                  value={isLogin ? 0 : 1}
+                  onChange={(_, newValue) => setIsLogin(newValue === 0)}
+                >
+                  <Tab label="Log In" />
+                  <Tab label="Sign Up" />
+                </Tabs>
+              }
+            />
+            <CardContent>
+              <Box
+                component="form"
+                onSubmit={handleSubmit}
+                noValidate
+                sx={{ mt: 1 }}
               >
-                Add Context ID
-              </Button>
-            </Box>
-
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleUpload}
-              disabled={isUploading}
-              className="mt-4"
-            >
-              {isUploading ? 'Uploading...' : 'Submit'}
-            </Button>
-            {isUploading && <LoadingAnimation />}
-          </Paper>
-        </Container>
-      </Box>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                />
+                {!isLogin && (
+                  <>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="name"
+                      label="Name"
+                      name="name"
+                      autoComplete="name"
+                    />
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="phone"
+                      label="Phone"
+                      name="phone"
+                      autoComplete="tel"
+                    />
+                  </>
+                )}
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  autoComplete={isLogin ? "current-password" : "new-password"}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={togglePasswordVisibility}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                {!isLogin && (
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="reenterPassword"
+                    label="Re-enter Password"
+                    type={showReenterPassword ? "text" : "password"}
+                    id="reenterPassword"
+                    autoComplete="new-password"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={toggleReenterPasswordVisibility}
+                            edge="end"
+                          >
+                            {showReenterPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                )}
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : isLogin ? "Log In" : "Sign Up"}
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+      </Container>
     </ThemeProvider>
-  )
+  );
 }
