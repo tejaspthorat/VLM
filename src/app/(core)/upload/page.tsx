@@ -30,24 +30,42 @@ export default function LoginSignup() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
+
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const name = formData.get("name") as string;
     const phone = formData.get("phone") as string;
 
-    // Here you would typically handle the login or signup logic
-    console.log({
-      isLogin,
-      email,
-      password,
-      name: isLogin ? undefined : name,
-      phone: isLogin ? undefined : phone,
-    });
+    try {
+      const url = isLogin ? "/api/login" : "/api/signup";
+      const data = {
+        email,
+        password,
+        ...(isLogin ? {} : { name, phone }), // Include name and phone for sign up only
+      };
 
-    // Simulating API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Something went wrong!");
+      }
+
+      const result = await response.json();
+      console.log(result);
+
+      // Redirect or notify the user of success
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
