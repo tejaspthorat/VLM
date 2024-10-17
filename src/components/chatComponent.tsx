@@ -23,8 +23,7 @@ import rehypeRaw from "rehype-raw";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
-  backgroundColor: "rgba(255, 255, 255, 0.1)",
-  backdropFilter: "blur(10px)",
+  backgroundColor: "white", // Changed to solid white
   borderRadius: theme.shape.borderRadius,
   border: "1px solid rgba(255, 255, 255, 0.2)",
   width: "100%",
@@ -32,14 +31,19 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   zIndex: 10,
 }));
 
-const MessageBubble = styled(Box)(({ theme, isUser }) => ({
+// Define interface for props with isUser
+interface MessageBubbleProps {
+  isUser: boolean;
+}
+
+const MessageBubble = styled(Box)<MessageBubbleProps>(({ theme, isUser }) => ({
   display: "flex",
   alignItems: "flex-start",
   marginBottom: theme.spacing(2),
   justifyContent: isUser ? "flex-end" : "flex-start",
 }));
 
-const MessageContent = styled(Box)(({ theme, isUser }) => ({
+const MessageContent = styled(Box)<MessageBubbleProps>(({ theme, isUser }) => ({
   background: isUser
     ? theme.palette.primary.main
     : theme.palette.secondary.main,
@@ -93,10 +97,11 @@ export default function ChatComponent({
       setChatHistory((prev) => [...prev, newMessage]);
 
       try {
-        const response = await fetch("/api/search", {
+        const response = await fetch("http://ec2-3-222-101-98.compute-1.amazonaws.com:8000/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            call_sid: "playground",
             user_id: selectedContext,
             message: inputMessage,
           }),

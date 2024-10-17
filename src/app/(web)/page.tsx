@@ -81,7 +81,7 @@ export default function Home() {
               </motion.h2>
 
               <div className="z-20 mt-6">
-                <Link href="/upload" passHref>
+                <Link href="/dashboard" passHref>
                   <MuiButton variant="contained" color="primary" size="large">
                     Get Started
                   </MuiButton>

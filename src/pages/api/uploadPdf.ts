@@ -12,14 +12,11 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     try {
-      // Parse the incoming form data from the request body
       const formData = req.body;
-
-      // Log the form data to the console
       logFormData(formData);
 
       // Make a POST request to the Flask API
-      const flaskApiUrl = "http://localhost:5000/embed"; // Replace with your Flask API URL
+      const flaskApiUrl = "http://ec2-3-222-101-98.compute-1.amazonaws.com:8000/embed"; // Replace with your Flask API URL
 
       const flaskResponse = await fetch(flaskApiUrl, {
         method: "POST",

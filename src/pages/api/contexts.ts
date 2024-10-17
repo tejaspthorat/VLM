@@ -8,7 +8,7 @@ export default async function handler(
   if (req.method === "GET") {
     try {
       // Make a GET request to the Flask API to fetch available contexts
-      const flaskApiUrl = "http://localhost:5000/users"; // Replace with your Flask API URL
+      const flaskApiUrl = "http://ec2-3-222-101-98.compute-1.amazonaws.com:8000/users"; // Replace with your Flask API URL
 
       const flaskResponse = await fetch(flaskApiUrl, {
         method: "GET",

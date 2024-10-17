@@ -1,7 +1,3 @@
-
-import Navbar from "@/components/navbar";
-import Footer from '@/components/footer';
-import BottomDock from "@/components/BottomDock";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function RootLayout({
@@ -15,7 +11,6 @@ export default function RootLayout({
           <body className="">
              <TooltipProvider>
               {children}    
-          <BottomDock />
           </TooltipProvider>
               
       </body>

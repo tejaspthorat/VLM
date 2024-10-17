@@ -1,4 +1,7 @@
+'use client'
+
 import React from "react";
+import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   BarChart2,
@@ -13,6 +16,17 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Sidebar() {
+  const router = useRouter();
+
+  const navItems = [
+    { icon: LayoutDashboard, label: "Dashboard", route: "/dashboard" },
+    { icon: BarChart2, label: "Playground", route: "/chat" },
+    { icon: Map, label: "Models", route: "/models" },
+    { icon: Database, label: "Data", route: "/data" },
+    { icon: Settings, label: "Settings", route: "/settings" },
+    { icon: HelpCircle, label: "Help", route: "/help" },
+  ];
+
   return (
     <aside className="w-64 bg-gray-900 text-white p-4">
       <div className="flex items-center mb-8">
@@ -22,34 +36,17 @@ export default function Sidebar() {
         <span className="text-xl font-bold">VoicEraCX</span>
       </div>
       <nav>
-        <Button variant="ghost" className="w-full justify-start mb-2">
-          <LayoutDashboard className="mr-2 h-4 w-4" />
-          Dashboard
-        </Button>
-        <Button variant="ghost" className="w-full justify-start mb-2">
-          <BarChart2 className="mr-2 h-4 w-4" />
-          Performance
-        </Button>
-        <Button variant="ghost" className="w-full justify-start mb-2">
-          <Map className="mr-2 h-4 w-4" />
-          Models
-        </Button>
-        <Button variant="ghost" className="w-full justify-start mb-2">
-          <Activity className="mr-2 h-4 w-4" />
-          Monitoring
-        </Button>
-        <Button variant="ghost" className="w-full justify-start mb-2">
-          <Database className="mr-2 h-4 w-4" />
-          Data
-        </Button>
-        <Button variant="ghost" className="w-full justify-start mb-2">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </Button>
-        <Button variant="ghost" className="w-full justify-start mb-2">
-          <HelpCircle className="mr-2 h-4 w-4" />
-          Help
-        </Button>
+        {navItems.map((item) => (
+          <Button
+            key={item.route}
+            variant="ghost"
+            className="w-full justify-start mb-2"
+            onClick={() => router.push(item.route)}
+          >
+            <item.icon className="mr-2 h-4 w-4" />
+            {item.label}
+          </Button>
+        ))}
       </nav>
       <div className="mt-auto pt-4 border-t border-gray-700">
         <div className="flex items-center">

@@ -1,4 +1,6 @@
-import React from "react";
+"use client"
+
+import React, { useEffect, useState } from "react";
 import {
   Search,
   LayoutDashboard,
@@ -38,7 +40,7 @@ const tokenUsageData = [
 const modelPerformanceData = [
   {
     id: 1,
-    model: "GPT-3",
+    model: "llama3.1 8b",
     type: "LANGUAGE",
     tokenUsage: 1181,
     resolutionTime: 217,
@@ -47,35 +49,15 @@ const modelPerformanceData = [
     rougeScore: 0.82,
   },
   {
-    id: 2,
-    model: "BERT",
-    type: "NLP",
-    tokenUsage: 998,
-    resolutionTime: 182,
-    wter: 2.1,
-    bleuScore: 0.72,
-    rougeScore: 0.79,
-  },
-  {
-    id: 3,
-    model: "T5",
-    type: "TRANSLATION",
-    tokenUsage: 891,
-    resolutionTime: 145,
-    wter: 1.8,
-    bleuScore: 0.75,
-    rougeScore: 0.8,
-  },
-  {
-    id: 4,
-    model: "RoBERTa",
-    type: "CLASSIFICATION",
-    tokenUsage: 541,
-    resolutionTime: 98,
-    wter: 1.7,
-    bleuScore: 0.76,
-    rougeScore: 0.81,
-  },
+    id: 1,
+    model: "gemma 2b",
+    type: "LANGUAGE",
+    tokenUsage: 1181,
+    resolutionTime: 217,
+    wter: 1.5,
+    bleuScore: 0.78,
+    rougeScore: 0.82,
+  }
 ];
 
 const requestsPerChannelData = [
@@ -86,6 +68,36 @@ const requestsPerChannelData = [
 ];
 
 export default function AIAnalyticsDashboard() {
+  const [kpiData, setKpiData] = useState({
+    average_bleu_score: 0,
+    average_resolution_time: 0,
+    average_rouge_l_score: 0,
+    average_token_usage_rate: 0,
+    average_word_token_error_rate: 0
+  });
+
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  const fetchKPIData = async () => {
+    try {
+      const response = await fetch('http://ec2-3-222-101-98.compute-1.amazonaws.com:8000/calculate_kpi');
+      const data = await response.json();
+      setKpiData(data);
+      setLastUpdated(new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error('Error fetching KPI data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchKPIData(); // Fetch data immediately on mount
+
+    const intervalId = setInterval(fetchKPIData, 5000); // Fetch data every 5 seconds
+
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
@@ -97,6 +109,11 @@ export default function AIAnalyticsDashboard() {
             <Input placeholder="Search..." className="pl-8 w-64" />
           </div>
         </div>
+        {lastUpdated && (
+          <div className="text-sm text-gray-500 mb-4">
+            Last updated: {lastUpdated}
+          </div>
+        )}
         <div className="grid grid-cols-4 gap-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -106,7 +123,7 @@ export default function AIAnalyticsDashboard() {
               <MoreVertical className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">78.5%</div>
+              <div className="text-2xl font-bold">{(kpiData.average_token_usage_rate * 100).toFixed(2)}%</div>
               <p className="text-xs text-green-500">+2.5%</p>
             </CardContent>
           </Card>
@@ -118,8 +135,8 @@ export default function AIAnalyticsDashboard() {
               <MoreVertical className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">215ms</div>
-              <p className="text-xs text-red-500">+15ms</p>
+              <div className="text-2xl font-bold">{(kpiData.average_resolution_time * 1e9).toFixed(2)}ns</div>
+              <p className="text-xs text-red-500">+15ns</p>
             </CardContent>
           </Card>
           <Card>
@@ -128,7 +145,7 @@ export default function AIAnalyticsDashboard() {
               <MoreVertical className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1.8%</div>
+              <div className="text-2xl font-bold">{(kpiData.average_word_token_error_rate * 100).toFixed(2)}%</div>
               <p className="text-xs text-green-500">-0.3%</p>
             </CardContent>
           </Card>
@@ -140,7 +157,7 @@ export default function AIAnalyticsDashboard() {
               <MoreVertical className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0.76</div>
+              <div className="text-2xl font-bold">{kpiData.average_bleu_score.toFixed(4)}</div>
               <p className="text-xs text-green-500">+0.02</p>
             </CardContent>
           </Card>
