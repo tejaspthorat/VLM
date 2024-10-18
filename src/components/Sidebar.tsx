@@ -56,7 +56,7 @@ export default function Sidebar() {
           </Avatar>
           <div className="ml-3">
             <p className="text-sm font-medium">Alex Johnson</p>
-            <p className="text-xs text-gray-400">AI RESEARCHER</p>
+            <p className="text-xs text-gray-400">Customer Service Representative</p>
           </div>
           <Button variant="ghost" size="icon" className="ml-auto">
             <MoreVertical className="h-4 w-4" />

@@ -12,6 +12,7 @@ import {
   HelpCircle,
   MoreVertical,
   ChevronRight,
+  Info,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ClientSideChart from "@/components/clientSideCharts";
 import Sidebar from "@/components/Sidebar";
 
@@ -40,7 +47,7 @@ const tokenUsageData = [
 const modelPerformanceData = [
   {
     id: 1,
-    model: "llama3.1 8b",
+    model: "Gemma 2b",
     type: "LANGUAGE",
     tokenUsage: 1181,
     resolutionTime: 217,
@@ -50,7 +57,7 @@ const modelPerformanceData = [
   },
   {
     id: 1,
-    model: "gemma 2b",
+    model: "VLM",
     type: "LANGUAGE",
     tokenUsage: 1181,
     resolutionTime: 217,
@@ -61,9 +68,8 @@ const modelPerformanceData = [
 ];
 
 const requestsPerChannelData = [
-  { name: "API", value: 1500, color: "#a3e635" },
-  { name: "Web", value: 1200, color: "#e879f9" },
-  { name: "Mobile", value: 1000, color: "#60a5fa" },
+  { name: "Voice", value: 1500, color: "#a3e635" },
+  { name: "Chat", value: 1200, color: "#e879f9" },
   { name: "Other", value: 300, color: "#c084fc" },
 ];
 
@@ -92,11 +98,16 @@ export default function AIAnalyticsDashboard() {
   useEffect(() => {
     fetchKPIData(); // Fetch data immediately on mount
 
-    const intervalId = setInterval(fetchKPIData, 5000); // Fetch data every 5 seconds
-
-    // Clean up the interval when the component unmounts
+    const intervalId = setInterval(fetchKPIData, 5000); 
     return () => clearInterval(intervalId);
   }, []);
+
+  const tooltipInfo = {
+    tokenUsageRate: "The percentage of tokens used in relation to the total available tokens for a given model or task.",
+    avgResolutionTime: "The average time taken to process and respond to a request, measured in nanoseconds.",
+    wter: "Word Token Error Rate: The percentage of incorrectly tokenized words in the model's output.",
+    bleuScore: "Bilingual Evaluation Understudy: A metric for evaluating the quality of machine-translated text, ranging from 0 to 1.",
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -115,52 +126,82 @@ export default function AIAnalyticsDashboard() {
           </div>
         )}
         <div className="grid grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">
-                Token Usage Rate
-              </CardTitle>
-              <MoreVertical className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(kpiData.average_token_usage_rate * 100).toFixed(2)}%</div>
-              <p className="text-xs text-green-500">+2.5%</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">
-                Avg. Resolution Time
-              </CardTitle>
-              <MoreVertical className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(kpiData.average_resolution_time * 1e9).toFixed(2)}ns</div>
-              <p className="text-xs text-red-500">+15ns</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">WTER</CardTitle>
-              <MoreVertical className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(kpiData.average_word_token_error_rate * 100).toFixed(2)}%</div>
-              <p className="text-xs text-green-500">-0.3%</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">
-                Avg. BLEU Score
-              </CardTitle>
-              <MoreVertical className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{kpiData.average_bleu_score.toFixed(4)}</div>
-              <p className="text-xs text-green-500">+0.02</p>
-            </CardContent>
-          </Card>
+          <TooltipProvider>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium">
+                  Token Usage Rate
+                </CardTitle>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-4 w-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{tooltipInfo.tokenUsageRate}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{(kpiData.average_token_usage_rate * 100).toFixed(2)}%</div>
+                <p className="text-xs text-green-500">+2.5%</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium">
+                  Avg. Resolution Time
+                </CardTitle>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-4 w-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{tooltipInfo.avgResolutionTime}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{(kpiData.average_resolution_time * 1e9).toFixed(2)}ns</div>
+                <p className="text-xs text-red-500">+15ns</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium">WTER</CardTitle>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-4 w-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{tooltipInfo.wter}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{(kpiData.average_word_token_error_rate * 100).toFixed(2)}%</div>
+                <p className="text-xs text-green-500">-0.3%</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium">
+                  Avg. BLEU Score
+                </CardTitle>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-4 w-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{tooltipInfo.bleuScore}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{kpiData.average_bleu_score.toFixed(4)}</div>
+                <p className="text-xs text-green-500">+0.02</p>
+              </CardContent>
+            </Card>
+          </TooltipProvider>
         </div>
         <div className="grid grid-cols-3 gap-8 mb-8">
           <Card className="col-span-2">
