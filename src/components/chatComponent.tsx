@@ -40,11 +40,14 @@ export default function ChatComponent() {
     if (contexts.length === 0 && !isLoadingContexts) {
       setIsLoadingContexts(true);
       try {
-        const response = await fetch("/api/contexts");
+        // Directly call the Flask API
+        const response = await fetch(
+          "http://ec2-3-222-101-98.compute-1.amazonaws.com:8000/users"
+        );
         if (!response.ok) throw new Error("Failed to fetch contexts");
         const data = await response.json();
-        if (data && Array.isArray(data.contexts.users)) {
-          setContexts(data.contexts.users);
+        if (data && Array.isArray(data.users)) {
+          setContexts(data.users);
         } else {
           console.error("Unexpected data structure:", data);
           setContexts([]);
